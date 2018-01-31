@@ -10,7 +10,7 @@ var fs = require('fs'),
     xml2js = require('xml2js'),
     toMarkdown = require('to-markdown'),
     parser = new xml2js.Parser(),
-    image_downloader = require('image-downloader'),
+    image_downloader = require('./image-downloader'),
     argv = require('commander')
 
 // init commander
@@ -144,7 +144,7 @@ function parsearticle(article) {
                     imgURL = imgURL.match(/http.*\.jpg|http.*\.jpeg|http.*\.png/)[0]
                     content = content.replace(/!\[(.*?)\]\((.*?)\)/, function(whole, imgName, url) {
                         _downloadImg(imgURL, imgName)
-                        return `![${imgName}](./${url.split('/').pop()})`
+                        return `![${imgName}](./${url.split('?').shift().split('/').pop()})`
                     })
                 })
             }
@@ -152,9 +152,9 @@ function parsearticle(article) {
 
             var text = article.photoLinks[0],
                 imgArray = JSON.parse(text)
-                
+
             imgArray.forEach(function(img) {
-                var imgName = img.orign.split('/').pop(),
+                var imgName = img.orign.split('?').shift().split('/').pop(),
                     imgURL = img.orign
 
                 content += '![图片]' + '(./img/' + imgName + ')\n'
@@ -164,7 +164,7 @@ function parsearticle(article) {
         } else if (article.caption != null) {
 
             content = toMarkdown(article.caption.toString());
-
+            
         } else {
             console.log(article);
         }
@@ -189,17 +189,17 @@ function parsearticle(article) {
     }
 
     _downloadImg = function(imgURL, imgName) {
-             image_downloader({
-                url: imgURL,
-                dest: outputImgPath,
-                done: function(err, imgName, image) {
-                    if (err) {
-                        throw err
-                    }
-                    console.log('Image saved to ', imgName)
+        image_downloader({
+            url: imgURL,
+            dest: outputImgPath,
+            done: function(err, imgName, image) {
+                if (err) {
+                    throw err
                 }
-            })
-        }
+                console.log('Image saved to ', imgName)
+            }
+        })
+    }
         
     return _parseHeader() + _parseContent() + _parseComment()
 }

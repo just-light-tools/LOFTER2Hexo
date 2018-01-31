@@ -12,6 +12,7 @@
   "dependencies": {
     "commander": "^2.9.0",
     "image-downloader": "^2.0.3",
+    "request": "^2.83.0",
     "to-markdown": "3.0.0",
     "xml2js": "0.4.16"
   },
